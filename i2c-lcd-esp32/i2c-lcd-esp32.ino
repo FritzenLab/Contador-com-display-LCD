@@ -6,17 +6,19 @@
 
 LiquidCrystal_I2C lcd(0x3D,16,2);  // set the LCD address to 0x3D for a 16 chars and 2 line display
 
-#define LED D0
-#define BUTTON D1
-#define RESET D2
+#define LED 2 // 2 for Xiao ESP32-C3 or D0 for Xiao ESP32-C6
+#define BUTTON 3 // 3 for Xiao ESP32-C3 or D1 for Xiao ESP32-C6
+#define RESET 4 // 4 for Xiao ESP32-C3 or D2 for Xiao ESP32-C6
 
 long whenPressed= 0;
 bool previousState= false;
 bool lastState= false;
 long lcdTimer= 0;
 int counter= 0;
+int currentCounter= -1;
 
 void setup() {
+  Wire.begin(6, 7);   // SDA = GPIO6, SCL = GPIO7
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(RESET, INPUT_PULLUP);
@@ -51,8 +53,10 @@ void loop() {
 
   }
 
-  if(millis() - lcdTimer > 500){ // update display every 500ms
+  //if(millis() - lcdTimer > 500){ // update display every 500ms
+  if(currentCounter != counter){ // update display every 500ms
     lcdTimer= millis();
+    currentCounter= counter; // makes sure that the display is updated only when there is new information
     lcd.clear();
     lcd.setCursor(0,0);   //Set cursor to character 2 on line 0
     lcd.print(counter);
